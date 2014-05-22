@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MAC tracker</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="wifi_states">
+        <item>Disabling</item>
+        <item>Disabled</item>
+        <item>Enabling</item>
+        <item>Enabled</item>
+        <item>Unknown</item>
+    </string-array>
+
+</resources>		
