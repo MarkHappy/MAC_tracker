@@ -18,16 +18,13 @@ public class DataSource {
 	
 	public boolean addAccessPoint (AccessPoint ap) {
 		boolean didSucceed = false;
-		openDB();
 		try {
 			ContentValues values = new ContentValues();
 			values.put(DBHelper.KEY_ESSID, ap.getApEssid());
 			values.put(DBHelper.KEY_BSSID, ap.getApBssid());
 			values.put(DBHelper.KEY_PWR_LVL, ap.getApPowerLevel());
 			values.put(DBHelper.KEY_SEEN, ap.getSeenTime());
-			
-			Log.w(TAG, "Query to execute: " + values.toString());
-			Log.w(TAG, "getAccessPointByBSSID(ap.getApBssid()) is: " + getAccessPointByBSSID(ap.getApBssid()).toString());
+			Log.w(TAG, "Values to add: " + values.toString());
 			if (getAccessPointByBSSID(ap.getApBssid()) == null) {
 				Log.w(TAG, "null, creating a new row");
 				// Returns the numbers of rows successfully inserted.
@@ -39,32 +36,31 @@ public class DataSource {
 			    Log.w(TAG, "didSucceed update is: " + String.valueOf(didSucceed));
 			}
 		} catch (Exception e) {
-			
+			Log.w(TAG, "catch block for adding AP");
 		}
-		closeDB();
 		return didSucceed;
 	}
 	
 	public AccessPoint getAccessPointByBSSID (String bssid) {
-		openDB();
-			Cursor cursor = database.query(DBHelper.TABLE_ACCESSPOINTS, new String[] { DBHelper.KEY_ESSID, DBHelper.KEY_BSSID,
-					DBHelper.KEY_PWR_LVL, DBHelper.KEY_SEEN}, DBHelper.KEY_BSSID + "=?", new String[] {String.valueOf(bssid)}, null, null, null, null);
-			if (cursor != null) {
-				cursor.moveToFirst();
-			} else {
-				return null;
-			}
-			AccessPoint ap = new AccessPoint(Long.parseLong(cursor.getString(3)), cursor.getString(0), 
-					cursor.getString(1), Integer.parseInt(cursor.getString(2)));
-		closeDB();
+		Cursor cursor = database.query(DBHelper.TABLE_ACCESSPOINTS, new String[] { DBHelper.KEY_ESSID, DBHelper.KEY_BSSID,
+			DBHelper.KEY_PWR_LVL, DBHelper.KEY_SEEN}, DBHelper.KEY_BSSID + "=?", new String[] {String.valueOf(bssid)}, null, null, null, null);
+		if (cursor != null) {
+			cursor.moveToFirst();
+		} else {
+			return null;
+		}
+		AccessPoint ap = new AccessPoint(Long.parseLong(cursor.getString(3)), cursor.getString(0), 
+			cursor.getString(1), Integer.parseInt(cursor.getString(2)));
 		return ap;
 	}
 	
 	public void openDB() throws SQLException {
 		database = dbHelper.getWritableDatabase();
+		Log.w(TAG, "DataBase open: " + database.getPath());
 	}
 
 	public void closeDB() {
+		Log.w(TAG, "closeDB");
 		dbHelper.close();
 	}
 

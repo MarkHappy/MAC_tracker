@@ -74,6 +74,7 @@ public class MainActivity extends ListActivity implements GooglePlayServicesClie
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 				Log.w(TAG, "onItemClick");
 				DataSource ds = new DataSource(MainActivity.this);
+				ds.openDB();
 				if (ds.addAccessPoint(adapter.getItem(position))) {
 					Toast.makeText(getApplicationContext(), adapter.getItem(position).getApEssid() + "was added", Toast.LENGTH_LONG).show();
 					mCurrentLocation = mLocationClient.getLastLocation();
@@ -81,6 +82,7 @@ public class MainActivity extends ListActivity implements GooglePlayServicesClie
 				} else {
 					Toast.makeText(getApplicationContext(), "Failed to add AP", Toast.LENGTH_LONG).show();
 				}
+				ds.closeDB();
 			}
 		});
 	}

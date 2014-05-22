@@ -8,7 +8,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "mactracker.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 1;
 	public static final String TABLE_ACCESSPOINTS = "accesspoints";
 	static final String TAG = DBHelper.class.getSimpleName();
 	
@@ -31,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		Log.w(TAG, "onCreate");
 		db.execSQL(CREATE_ACCESS_POINTS_TABLE);
 	}
 
