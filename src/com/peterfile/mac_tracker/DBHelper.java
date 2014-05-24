@@ -13,21 +13,30 @@ public class DBHelper extends SQLiteOpenHelper {
 	static final String TAG = DBHelper.class.getSimpleName();
 	
     // AccessPoints Table Columns names
-    public static final String KEY_ESSID = "essid";
-    public static final String KEY_BSSID = "bssid";
-    public static final String KEY_PWR_LVL = "power_level";
-    public static final String KEY_SEEN = "seen";
-    public static final String KEY_LAT = "lat";
-    public static final String KEY_LON = "lon";
+	public static final String KEY_ID 		= "_id";
+    public static final String KEY_ESSID 	= "essid";
+    public static final String KEY_BSSID 	= "bssid";
+    public static final String KEY_PWR_LVL 	= "power_level";
+    public static final String KEY_SEEN 	= "seen";
+    public static final String KEY_LAT 		= "lat";
+    public static final String KEY_LON 		= "lon";
+    public static final String KEY_ACC 		= "acc";
 	
 	public DBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 	
 	// Database access point table 
-	private static final String CREATE_ACCESS_POINTS_TABLE = "CREATE TABLE " + TABLE_ACCESSPOINTS 
-			+ "("+ KEY_ESSID + " TEXT," + KEY_BSSID + " TEXT PRIMARY KEY," 
-			+ KEY_PWR_LVL + " INTEGER," + KEY_SEEN + " INTEGER" + ")";
+	private static final String CREATE_ACCESS_POINTS_TABLE = "CREATE TABLE " + TABLE_ACCESSPOINTS + "(" 
+			+ KEY_ID 		+ " INTEGER PRIMARY KEY,"
+			+ KEY_ESSID 	+ " TEXT," 
+			+ KEY_BSSID 	+ " TEXT," 
+			+ KEY_PWR_LVL 	+ " INTEGER," 
+			+ KEY_SEEN 		+ " INTEGER," 
+			+ KEY_LAT 		+ " INTEGER,"
+			+ KEY_LON 		+ " INTEGER,"
+			+ KEY_ACC 		+ " REAL"
+			+ ")";
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {

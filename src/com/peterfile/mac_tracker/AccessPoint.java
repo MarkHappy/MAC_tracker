@@ -10,25 +10,38 @@ import android.net.wifi.ScanResult;
 import android.text.format.Time;
 
 public class AccessPoint {
+	private int id;
 	private long seenTime;
 	private String essid;
 	private String bssid;
 	private String capabilities;
 	private int powerLevel;
 	private int frequency;
+	private double latitude;
+	private double longitude;
+	private float accuracy;
 	
-	public AccessPoint () {
-		seenTime = -1;
-		powerLevel = -1;
-	}
-	
-	public AccessPoint (long seen, String essid, String bssid, int pwrlvl) {
-		this.seenTime = seen;
+	public AccessPoint (int id, String essid, String bssid, int pwrlvl, long seen, double lat, double lon, float acc) {
+		this.id = id;
 		this.essid = essid;
 		this.bssid = bssid;
 		this.powerLevel = pwrlvl;
+		this.seenTime = seen;
+		this.latitude = lat;
+		this.longitude = lon;
+		this.accuracy = acc;
 	}
 		
+	public AccessPoint() {
+	}
+
+	public int getId () {
+		return id;
+	}
+	
+	public void setId (int i) {
+		id = i;
+	}
 	public long getSeenTime () {
 		return seenTime;
 	}
@@ -77,14 +90,41 @@ public class AccessPoint {
 		frequency = i;
 	}
 	
+	public double getLat () {
+		return latitude;
+	}
+	
+	public void setLat (double d) {
+		latitude = d;
+	}
+	
+	public double getLon () {
+		return longitude;
+	}
+	
+	public void setLon (double d) {
+		longitude = d;
+	}
+	
+	public float getAcc () {
+		return accuracy;
+	}
+	
+	public void setAcc (float f) {
+		accuracy = f;
+	}
+	
 	public static AccessPoint convertFromScanResult(ScanResult sr) {
 		AccessPoint ap = new AccessPoint();
-		ap.setSeenTime(getSystemTime());
 		ap.setApEssid(sr.SSID);
 		ap.setApBssid(sr.BSSID);
-		ap.setApCapabilities(sr.capabilities);
+		//ap.setApCapabilities(sr.capabilities);
 		ap.setApPowerLevel(sr.level);
-		ap.setApFrequency(sr.frequency);
+		ap.setSeenTime(getSystemTime());
+		//ap.setApFrequency(sr.frequency);
+		ap.setLat(MainActivity.mCurrentLocation.getLatitude());
+		ap.setLon(MainActivity.mCurrentLocation.getLongitude());
+		ap.setAcc(MainActivity.mCurrentLocation.getAccuracy());
 		return ap;
 	}
 	

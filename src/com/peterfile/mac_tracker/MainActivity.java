@@ -33,7 +33,7 @@ public class MainActivity extends ListActivity implements GooglePlayServicesClie
 	WifiListAdapter adapter;
 	ArrayList<AccessPoint> apList;
 	LocationClient mLocationClient;
-	Location mCurrentLocation;
+	static Location mCurrentLocation;
 
 
 	@Override
@@ -75,10 +75,9 @@ public class MainActivity extends ListActivity implements GooglePlayServicesClie
 				Log.w(TAG, "onItemClick");
 				DataSource ds = new DataSource(MainActivity.this);
 				ds.openDB();
+				getCurrentLocation();
 				if (ds.addAccessPoint(adapter.getItem(position))) {
 					Toast.makeText(getApplicationContext(), adapter.getItem(position).getApEssid() + "was added", Toast.LENGTH_LONG).show();
-					mCurrentLocation = mLocationClient.getLastLocation();
-					Log.w(TAG, "LAT: " + mCurrentLocation.getLatitude() + " LON: " + mCurrentLocation.getLongitude() + " ACC: " + mCurrentLocation.getAccuracy());
 				} else {
 					Toast.makeText(getApplicationContext(), "Failed to add AP", Toast.LENGTH_LONG).show();
 				}
@@ -100,6 +99,7 @@ public class MainActivity extends ListActivity implements GooglePlayServicesClie
 			@Override
 			public void onClick(View v) {
 				apList = AccessPoint.convertFromListScanResults(scanNow());
+				
 				adapter.clear();
 				adapter.addAll(apList);
 				adapter.sortByPowerDsc();
@@ -190,11 +190,25 @@ public class MainActivity extends ListActivity implements GooglePlayServicesClie
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		if (id == R.id.settings_start_location_service) {
+			startService(new Intent(this, LocationService.class));
+		}
+		if (id == R.id.settings_stop_location_service) {
+			stopService(new Intent(this, LocationService.class));
+		}
 		if (id == R.id.action_settings) {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+//	 private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() { 
+//		 public void onReceive(Context context, Intent intent) { 
+//			 MainActivity.this.MethodName(intent); 
+//		 } 
+//	 };
+	
+	
 
 	private List<ScanResult> scanNow() {
 		WifiManager wifiManager = (WifiManager) getBaseContext().getSystemService(Context.WIFI_SERVICE);
@@ -203,18 +217,20 @@ public class MainActivity extends ListActivity implements GooglePlayServicesClie
 		
 	}
 
+	private void getCurrentLocation () {
+		mCurrentLocation = mLocationClient.getLastLocation();
+	}
 	
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		Toast.makeText(this, "Failed to connect", Toast.LENGTH_SHORT).show();		
 	}
 	
-
 	@Override
     public void onConnected(Bundle dataBundle) {
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+		getCurrentLocation();
     }
-
 
     @Override
     public void onDisconnected() {

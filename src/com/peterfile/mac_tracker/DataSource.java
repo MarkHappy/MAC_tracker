@@ -24,17 +24,14 @@ public class DataSource {
 			values.put(DBHelper.KEY_BSSID, ap.getApBssid());
 			values.put(DBHelper.KEY_PWR_LVL, ap.getApPowerLevel());
 			values.put(DBHelper.KEY_SEEN, ap.getSeenTime());
+			values.put(DBHelper.KEY_LAT, ap.getLat());
+			values.put(DBHelper.KEY_LON, ap.getLon());
+			values.put(DBHelper.KEY_ACC, ap.getAcc());
 			Log.w(TAG, "Values to add: " + values.toString());
-			if (getAccessPointByBSSID(ap.getApBssid()) == null) {
-				Log.w(TAG, "null, creating a new row");
-				// Returns the numbers of rows successfully inserted.
-				didSucceed = database.insert(DBHelper.TABLE_ACCESSPOINTS, null, values) > 0;
-				Log.w(TAG, "didSucceed is: " + String.valueOf(didSucceed));
-			} else {
-				Log.w(TAG, "updating a row");
-				didSucceed = database.update(DBHelper.TABLE_ACCESSPOINTS, values, DBHelper.KEY_BSSID + " = ?", new String[] { String.valueOf(ap.getApBssid()) }) > 0;
-			    Log.w(TAG, "didSucceed update is: " + String.valueOf(didSucceed));
-			}
+			Log.w(TAG, "null, creating a new row");
+			// Returns the numbers of rows successfully inserted.
+			didSucceed = database.insert(DBHelper.TABLE_ACCESSPOINTS, null, values) > 0;
+			Log.w(TAG, "didSucceed is: " + String.valueOf(didSucceed));
 		} catch (Exception e) {
 			Log.w(TAG, "catch block for adding AP");
 		}
@@ -42,25 +39,46 @@ public class DataSource {
 	}
 	
 	public AccessPoint getAccessPointByBSSID (String bssid) {
-		Cursor cursor = database.query(DBHelper.TABLE_ACCESSPOINTS, new String[] { DBHelper.KEY_ESSID, DBHelper.KEY_BSSID,
-			DBHelper.KEY_PWR_LVL, DBHelper.KEY_SEEN}, DBHelper.KEY_BSSID + "=?", new String[] {String.valueOf(bssid)}, null, null, null, null);
-		if (cursor != null) {
+		String[] columns = new String [] { 
+			DBHelper.KEY_ID,
+			DBHelper.KEY_ESSID, 
+			DBHelper.KEY_BSSID,
+			DBHelper.KEY_PWR_LVL, 
+			DBHelper.KEY_SEEN,
+			DBHelper.KEY_LAT,
+			DBHelper.KEY_LON,
+			DBHelper.KEY_ACC
+		};
+		Cursor cursor = database.query(DBHelper.TABLE_ACCESSPOINTS, columns, DBHelper.KEY_BSSID + "=?", new String[] {String.valueOf(bssid)}, null, null, null, null);
+		if (cursor.getCount() != 0) {
+			Log.w(TAG, "got DB cursor");
 			cursor.moveToFirst();
 		} else {
+			Log.w(TAG, "DB cursor is empty");
+			cursor.close();
 			return null;
 		}
-		AccessPoint ap = new AccessPoint(Long.parseLong(cursor.getString(3)), cursor.getString(0), 
-			cursor.getString(1), Integer.parseInt(cursor.getString(2)));
+		AccessPoint ap = new AccessPoint(
+				Integer.parseInt(cursor.getString(0)), 
+				cursor.getString(1),
+				cursor.getString(2),
+				Integer.parseInt(cursor.getString(3)), 
+				Long.parseLong(cursor.getString(4)), 
+				Double.parseDouble(cursor.getString(5)), 
+				Double.parseDouble(cursor.getString(6)), 
+				Float.parseFloat(cursor.getString(7))
+		);
+		cursor.close();
 		return ap;
 	}
 	
 	public void openDB() throws SQLException {
 		database = dbHelper.getWritableDatabase();
-		Log.w(TAG, "DataBase open: " + database.getPath());
+		Log.d(TAG, "DataBase open: " + database.getPath());
 	}
 
 	public void closeDB() {
-		Log.w(TAG, "closeDB");
+		Log.d(TAG, "closeDB");
 		dbHelper.close();
 	}
 

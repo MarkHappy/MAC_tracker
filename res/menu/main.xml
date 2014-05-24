@@ -7,5 +7,13 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_settings"/>
+    <item
+        android:id="@+id/settings_start_location_service"
+        android:title="@string/start_location_service">
+    </item>
+    <item
+        android:id="@+id/settings_stop_location_service"
+        android:title="@string/stop_location_service">
+    </item>
 
 </menu>
