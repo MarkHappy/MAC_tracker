@@ -18,6 +18,13 @@ public class LocationService extends Service {
 	public LocationManager locationManager;
 	public MyLocationListener listener;
 	public Location previousBestLocation = null;
+	public static final String SERVICE_STATUS = "com.peterfile.android.service.status";
+	public static final String SERVICE_LOCATION = "com.peterfile.android.service.location";
+	public final static String KEY_LAT = "Latitude";
+	public final static String KEY_LON = "Longitude";
+	public final static String KEY_PRO = "Provider";
+	public final static String KEY_ACC = "Accuracy";
+	public final static String KEY_SEEN = "TimeSeen";
 
 	Intent intent;
 	int counter = 0;
@@ -31,19 +38,29 @@ public class LocationService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.w(TAG, "onStart");
-		Toast.makeText(getApplicationContext(), "Location service was started", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(getApplicationContext(), "Location service was started", Toast.LENGTH_SHORT).show();
+		
+		//Broadcast back to the activity
+	    Intent i = new Intent(SERVICE_STATUS);
+	    i.putExtra("Location_Service_Status", "start");
+	    sendBroadcast(i);
+		
 	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	    listener = new MyLocationListener();        
-	    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000, 0, listener);
-	    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000, 0, listener);
-		return super.onStartCommand(intent, flags, startId);
+	    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000, 2, listener);
+	    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, listener);
+	    
+	    locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+	    locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+	    if (isBetterLocation (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER), locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))) {
+	    	sendLocationIntent(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+	    } else {
+	    	sendLocationIntent(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
+	    }
+	    return START_NOT_STICKY;
+//	    return super.onStartCommand(intent, flags, startId);
 	}
 	
-	@Override
-	public IBinder onBind(Intent intent) {
-	    return null;
-	}
-
 	protected boolean isBetterLocation(Location location, Location currentBestLocation) {
 	    if (currentBestLocation == null) {
 	        // A new location is always better than no location
@@ -86,7 +103,6 @@ public class LocationService extends Service {
 	    return false;
 	}
 
-	/** Checks whether two providers are the same */
 	private boolean isSameProvider(String provider1, String provider2) {
 	    if (provider1 == null) {
 	      return provider2 == null;
@@ -98,60 +114,57 @@ public class LocationService extends Service {
 	public void onDestroy() {       
 	   // handler.removeCallbacks(sendUpdatesToUI);     
 	    super.onDestroy();
-	    Log.v("STOP_SERVICE", "DONE");
+	  //Broadcast back to the activity
+	    Intent intent = new Intent(SERVICE_STATUS);
+	    intent.putExtra("Location_Service_Status", "stop");
+	    sendBroadcast(intent);
+	    
 	    locationManager.removeUpdates(listener);
 		Log.w(TAG, "onDestroy");
 		Toast.makeText(getApplicationContext(), "Location service was stopped", Toast.LENGTH_SHORT).show();
 	}   
 
-	public static Thread performOnBackgroundThread(final Runnable runnable) {
-	    final Thread t = new Thread() {
-	        @Override
-	        public void run() {
-	            try {
-	                runnable.run();
-	            } finally {
-
-	            }
-	        }
-	    };
-	    t.start();
-	    return t;
-	}
-
-
-	public class MyLocationListener implements LocationListener
-	{
+    public void sendLocationIntent(Location loc) {
+    	Intent i = new Intent(SERVICE_LOCATION);
+        i.putExtra(KEY_LAT, loc.getLatitude());
+        i.putExtra(KEY_LON, loc.getLongitude());     
+        i.putExtra(KEY_PRO, loc.getProvider());
+        i.putExtra(KEY_ACC, loc.getAccuracy());
+        i.putExtra(KEY_SEEN, loc.getTime());
+        i.putExtra(KEY_PRO, loc.getProvider());
+        sendBroadcast(i);
+    }
+	
+	public class MyLocationListener implements LocationListener {
 
 	    public void onLocationChanged(final Location loc)
 	    {
-	        Log.i("**************************************", "Location changed");
 	        if(isBetterLocation(loc, previousBestLocation)) {
 	            loc.getLatitude();
-	            loc.getLongitude();             
-	            intent.putExtra("Latitude", loc.getLatitude());
-	            intent.putExtra("Longitude", loc.getLongitude());     
-	            intent.putExtra("Provider", loc.getProvider());                 
-	            sendBroadcast(intent);          
-
+	            loc.getLongitude();
+	            sendLocationIntent(loc);
 	        }                               
 	    }
 
 	    public void onProviderDisabled(String provider)
 	    {
-	        Toast.makeText( getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT ).show();
+	        Toast.makeText( getApplicationContext(), "Gps disabled, stopping service.", Toast.LENGTH_LONG ).show();
+	        stopSelf();
 	    }
-
 
 	    public void onProviderEnabled(String provider)
 	    {
 	        Toast.makeText( getApplicationContext(), "Gps Enabled", Toast.LENGTH_SHORT).show();
 	    }
 
-
 	    public void onStatusChanged(String provider, int status, Bundle extras)
 	    {
 
 	    }
+	}
+	
+	@Override
+	public IBinder onBind(Intent intent) {
+	    return null;
 	}
 }

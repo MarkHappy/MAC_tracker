@@ -122,9 +122,9 @@ public class AccessPoint {
 		ap.setApPowerLevel(sr.level);
 		ap.setSeenTime(getSystemTime());
 		//ap.setApFrequency(sr.frequency);
-		ap.setLat(MainActivity.mCurrentLocation.getLatitude());
-		ap.setLon(MainActivity.mCurrentLocation.getLongitude());
-		ap.setAcc(MainActivity.mCurrentLocation.getAccuracy());
+//		ap.setLat(MainActivity.mCurrentLocation.getLatitude());
+//		ap.setLon(MainActivity.mCurrentLocation.getLongitude());
+//		ap.setAcc(MainActivity.mCurrentLocation.getAccuracy());
 		return ap;
 	}
 	

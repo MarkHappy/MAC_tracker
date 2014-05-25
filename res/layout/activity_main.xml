@@ -8,52 +8,99 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.peterfile.mac_tracker.MainActivity$PlaceholderFragment" >
 
-    <RelativeLayout
-        android:id="@+id/toolbar"
-        android:background="@color/LightGrey"
-        android:layout_alignParentBottom="true"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+    <Button
+        android:id="@+id/button_Location_Service_State"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/textView_Location_Service_State_Label"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:id="@+id/textView_WIFI_State"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:text="WIFI state"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <Button
-            android:id="@+id/button_Toggle_Wifi_State"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView_WIFI_State"
-            android:layout_below="@+id/textView_WIFI_State"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="6dp"
-            android:text="dummy" />
-
-        <Button
-            android:id="@+id/button_Scan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@+id/textView_WIFI_State"
-            android:enabled="false"
-            android:text="Scan" />
-    </RelativeLayout>
-
-    <ListView
-        android:id="@id/android:list"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/textView_Location_Service_State_Label"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/toolbar"
-        android:layout_above="@+id/toolbar"
-        android:layout_marginTop="6dp" >
-    </ListView>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="6dp"
+        android:text="@string/location_Service_State_Name"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView_Latitdue_Label"
+        android:layout_width="120dp"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_Location_Service_State"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="20dp"
+        android:layout_toLeftOf="@+id/textView_Accuracy_Label"
+        android:text="@string/latitude"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView_Longitude_Label"
+        android:layout_width="120dp"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_Location_Service_State"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="20dp"
+        android:layout_toRightOf="@+id/textView_Accuracy_Label"
+        android:text="@string/longitude"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView_Accuracy_Label"
+        android:layout_width="80dp"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_Location_Service_State"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="@string/accuracy"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/button_Latitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView_Latitdue_Label"
+        android:layout_alignRight="@+id/textView_Latitdue_Label"
+        android:layout_below="@+id/textView_Accuracy_Label"
+        android:layout_marginTop="10dp"
+        android:text="" />
+
+    <Button
+        android:id="@+id/button_Longitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView_Longitude_Label"
+        android:layout_alignRight="@+id/textView_Longitude_Label"
+        android:layout_below="@+id/textView_Accuracy_Label"
+        android:layout_marginTop="10dp"
+        android:text="" />
+
+    <Button
+        android:id="@+id/button_Accuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView_Accuracy_Label"
+        android:layout_alignRight="@+id/textView_Accuracy_Label"
+        android:layout_below="@+id/textView_Accuracy_Label"
+        android:layout_marginTop="10dp"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button_Latitude"
+        android:layout_below="@+id/button_Latitude"
+        android:layout_marginTop="49dp"
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>
