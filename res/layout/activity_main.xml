@@ -8,6 +8,40 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.peterfile.mac_tracker.MainActivity$PlaceholderFragment" >
 
+    <RelativeLayout
+        android:id="@+id/navbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/DarkSlateGray" >
+
+        <ImageButton
+            android:id="@+id/imageButton_List"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@+id/imageButton_Map"
+            android:src="@drawable/ic_menu_agenda" />
+
+        <ImageButton
+            android:id="@+id/imageButton_Map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_action_map" />
+
+        <ImageButton
+            android:id="@+id/imageButton_Settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/imageButton_Map"
+            android:src="@drawable/ic_menu_preferences" />
+    </RelativeLayout>
+
     <Button
         android:id="@+id/button_Location_Service_State"
         android:layout_width="100dp"
@@ -30,36 +64,36 @@
 
     <TextView
         android:id="@+id/textView_Latitdue_Label"
-        android:layout_width="120dp"
-        android:gravity="center"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button_Location_Service_State"
-        android:layout_marginRight="4dp"
+        android:layout_marginRight="0dp"
         android:layout_marginTop="20dp"
         android:layout_toLeftOf="@+id/textView_Accuracy_Label"
+        android:gravity="center"
         android:text="@string/latitude"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textView_Longitude_Label"
-        android:layout_width="120dp"
-        android:gravity="center"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button_Location_Service_State"
-        android:layout_marginLeft="4dp"
+        android:layout_marginLeft="0dp"
         android:layout_marginTop="20dp"
         android:layout_toRightOf="@+id/textView_Accuracy_Label"
+        android:gravity="center"
         android:text="@string/longitude"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textView_Accuracy_Label"
         android:layout_width="80dp"
-        android:gravity="center"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button_Location_Service_State"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
+        android:gravity="center"
         android:text="@string/accuracy"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -94,13 +128,34 @@
         android:text="" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textView_Time_Since_Update_Label"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_alignLeft="@+id/button_Latitude"
         android:layout_below="@+id/button_Latitude"
-        android:layout_marginTop="49dp"
-        android:text="Medium Text"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/seconds_since_update"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/button_Time_Since_Update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView_Time_Since_Update_Label"
+        android:layout_alignLeft="@+id/textView_Longitude_Label"
+        android:layout_alignRight="@+id/textView_Longitude_Label"
+        android:layout_toRightOf="@+id/textView_Time_Since_Update_Label"
+        android:text="" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/button_Accuracy"
+        android:layout_marginBottom="88dp"
+        android:layout_marginRight="25dp" >
+    </RelativeLayout>
 
 </RelativeLayout>

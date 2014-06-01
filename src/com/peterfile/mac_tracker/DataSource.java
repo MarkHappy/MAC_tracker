@@ -1,5 +1,8 @@
 package com.peterfile.mac_tracker;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -58,8 +61,7 @@ public class DataSource {
 			cursor.close();
 			return null;
 		}
-		AccessPoint ap = new AccessPoint(
-				Integer.parseInt(cursor.getString(0)), 
+		AccessPoint ap = new AccessPoint( 
 				cursor.getString(1),
 				cursor.getString(2),
 				Integer.parseInt(cursor.getString(3)), 
@@ -68,8 +70,31 @@ public class DataSource {
 				Double.parseDouble(cursor.getString(6)), 
 				Float.parseFloat(cursor.getString(7))
 		);
+		ap.setId(Integer.parseInt(cursor.getString(0)));
 		cursor.close();
 		return ap;
+	}
+	
+	public List<AccessPoint> getAllAccessPoints	() {
+		List<AccessPoint> apList = new ArrayList<AccessPoint>();
+		String selectQuery = "SELECT * FROM " + DBHelper.TABLE_ACCESSPOINTS;
+		Log.w(TAG, "query is: " + selectQuery);
+		Cursor cursor = database.rawQuery(selectQuery, null);
+		if (cursor.moveToFirst()) {
+			do {
+				AccessPoint ap = new AccessPoint();
+				ap.setId(cursor.getInt(0));
+				ap.setApEssid(cursor.getString(1));
+				ap.setApBssid(cursor.getString(2));
+				ap.setApPowerLevel(cursor.getInt(3));
+				ap.setSeenTime(cursor.getInt(4));
+				ap.setLat(cursor.getFloat(5));
+				ap.setLon(cursor.getFloat(6));
+				ap.setAcc(cursor.getFloat(7));
+				apList.add(ap);				
+			} while (cursor.moveToNext());
+		}
+		return apList;
 	}
 	
 	public void openDB() throws SQLException {
@@ -80,6 +105,12 @@ public class DataSource {
 	public void closeDB() {
 		Log.d(TAG, "closeDB");
 		dbHelper.close();
+	}
+
+	public int itemsCount() {
+		String countQuery = "SELECT * FROM " + DBHelper.TABLE_ACCESSPOINTS;
+		Cursor cursor = database.rawQuery(countQuery, null);
+		return cursor.getCount();
 	}
 
 }

@@ -1,19 +1,8 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.peterfile.mac_tracker.MainActivity" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_update"
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_settings"/>
-    <item
-        android:id="@+id/settings_start_location_service"
-        android:title="@string/start_location_service">
-    </item>
-    <item
-        android:id="@+id/settings_stop_location_service"
-        android:title="@string/stop_location_service">
-    </item>
-
-</menu>
+</menu>

@@ -8,36 +8,48 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.text.format.Time;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
 	static final String TAG = MainActivity.class.getSimpleName();
-
+	android.os.Handler customHandler;
+	long last_updated_location = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Toast.makeText(getBaseContext(), TAG + " onCreate",  Toast.LENGTH_SHORT).show();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		initMapButton();
+		initSettingsButton();
+		
+		customHandler = new android.os.Handler();
+        customHandler.postDelayed(updateTimerThread, 0);
+        
 	}
 	
 	@Override
 	protected void onResume() {
+		Toast.makeText(getBaseContext(), TAG + " onResume",  Toast.LENGTH_SHORT).show();
 		super.onResume();
 		initLocationServiceStateButton();
 		registerReceiver(serverStatusReceiver, new IntentFilter(LocationService.SERVICE_STATUS));
 		registerReceiver(serverLocationReceiver, new IntentFilter(LocationService.SERVICE_LOCATION));
 	}
-
+	
 	@Override
-	protected void onStop() {
-		super.onStop();
+	protected void onPause() {
+		unregisterReceiver(serverLocationReceiver);
+		unregisterReceiver(serverStatusReceiver);
+		super.onPause();
 	}
 	
 	private void initLocationServiceStateButton() {
@@ -58,32 +70,6 @@ public class MainActivity extends Activity {
 		} else {
 			setLocationServiceDisabled();
 		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.settings_start_location_service) {
-			startService(new Intent(this, LocationService.class));
-		}
-		if (id == R.id.settings_stop_location_service) {
-			stopService(new Intent(this, LocationService.class));
-		}
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 	
 	private boolean isMyServiceRunning() {
@@ -120,7 +106,6 @@ public class MainActivity extends Activity {
 		}
 	};
 	
-	
 	private BroadcastReceiver serverLocationReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -138,8 +123,7 @@ public class MainActivity extends Activity {
 		bLat.setText(String.valueOf(b.getDouble(LocationService.KEY_LAT)));
 		bLon.setText(String.valueOf(b.getDouble(LocationService.KEY_LON)));
 		bAcc.setText(String.valueOf(b.getFloat(LocationService.KEY_ACC)));
-		Log.w(TAG, "Location is " + (getSystemTime() - b.getLong(LocationService.KEY_SEEN)) / 1000 + " seconds old");
-		if (Float.valueOf((String) bAcc.getText()) < 5) {
+		if (Float.valueOf((String) bAcc.getText()) < 10) {
 			bAcc.setBackgroundColor(getResources().getColor(R.color.Green));
 			bLat.setBackgroundColor(getResources().getColor(R.color.Green));
 			bLon.setBackgroundColor(getResources().getColor(R.color.Green));
@@ -149,13 +133,67 @@ public class MainActivity extends Activity {
 			bLon.setBackgroundColor(getResources().getColor(R.color.Red));
 		}
 		
-		TextView tvPro = (TextView) findViewById(R.id.textView1);
-		tvPro.setText(b.getString(LocationService.KEY_PRO));
+		last_updated_location = b.getLong(LocationService.KEY_SEEN);
+	}
+	
+	private Runnable updateTimerThread = new Runnable()	{
+		public void run() {
+			if (last_updated_location != 0) {
+				Button bSeen = (Button) findViewById(R.id.button_Time_Since_Update);
+				bSeen.setText(String.valueOf((System.currentTimeMillis() - last_updated_location) / 1000));
+			}
+			customHandler.postDelayed(this, 5000);
+		}
+	};
+
+	private void saveDummyAp (Bundle b) {
+		AccessPoint ap = new AccessPoint(
+				"Dummy", 
+				"00:00:00:00:00:00", 
+				0, 
+				b.getLong(LocationService.KEY_SEEN), 
+				b.getDouble(LocationService.KEY_LAT), 
+				b.getDouble(LocationService.KEY_LON), 
+				b.getFloat(LocationService.KEY_ACC)
+		);
+		DataSource ds = new DataSource(getApplicationContext());
+		ds.openDB();
+		ds.addAccessPoint(ap);
+		ds.closeDB();		
 	}
 
-	public static long getSystemTime() {
-		Time now = new Time();
-		now.setToNow();
-		return now.toMillis(false);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+      getMenuInflater().inflate(R.menu.main, menu);
+      return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	return super.onOptionsItemSelected(item);
+    }
+
+	private void initMapButton() {
+		ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_Map);
+		imageButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, ActivityMap.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+			}
+		});
 	}
+	
+	private void initSettingsButton() {
+		ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_Settings);
+		imageButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, ActivitySettings.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+			}
+		});
+	}
+	
 }

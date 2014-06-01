@@ -1,11 +1,9 @@
 package com.peterfile.mac_tracker;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
+import android.location.Location;
 import android.net.wifi.ScanResult;
 import android.text.format.Time;
 
@@ -21,8 +19,7 @@ public class AccessPoint {
 	private double longitude;
 	private float accuracy;
 	
-	public AccessPoint (int id, String essid, String bssid, int pwrlvl, long seen, double lat, double lon, float acc) {
-		this.id = id;
+	public AccessPoint (String essid, String bssid, int pwrlvl, long seen, double lat, double lon, float acc) {
 		this.essid = essid;
 		this.bssid = bssid;
 		this.powerLevel = pwrlvl;
@@ -42,6 +39,7 @@ public class AccessPoint {
 	public void setId (int i) {
 		id = i;
 	}
+	
 	public long getSeenTime () {
 		return seenTime;
 	}
@@ -114,7 +112,7 @@ public class AccessPoint {
 		accuracy = f;
 	}
 	
-	public static AccessPoint convertFromScanResult(ScanResult sr) {
+	public static AccessPoint convertFromScanResult(ScanResult sr, Location loc) {
 		AccessPoint ap = new AccessPoint();
 		ap.setApEssid(sr.SSID);
 		ap.setApBssid(sr.BSSID);
@@ -122,30 +120,24 @@ public class AccessPoint {
 		ap.setApPowerLevel(sr.level);
 		ap.setSeenTime(getSystemTime());
 		//ap.setApFrequency(sr.frequency);
-//		ap.setLat(MainActivity.mCurrentLocation.getLatitude());
-//		ap.setLon(MainActivity.mCurrentLocation.getLongitude());
-//		ap.setAcc(MainActivity.mCurrentLocation.getAccuracy());
+		ap.setLat(loc.getLatitude());
+		ap.setLon(loc.getLongitude());
+		ap.setAcc(loc.getAccuracy());
 		return ap;
 	}
 	
-	public static ArrayList<AccessPoint> convertFromListScanResults (List<ScanResult> sr) {
+	public static ArrayList<AccessPoint> convertFromListScanResults (List<ScanResult> sr, Location loc) {
 		ArrayList<AccessPoint> apList = new ArrayList<AccessPoint>();
 		for (ScanResult s : sr) {
-			apList.add(convertFromScanResult(s));
+			apList.add(convertFromScanResult(s, loc));
 		}
 		return apList;
 	}
-	
-	public static String getDate (long milliSeconds, String dateFormat) {
-	    DateFormat formatter = new SimpleDateFormat(dateFormat); 
-	     Calendar calendar = Calendar.getInstance();
-	     calendar.setTimeInMillis(milliSeconds);
-	     return formatter.format(calendar.getTime());
-	}
-	
+
 	public static long getSystemTime () {
 		Time now = new Time();
 		now.setToNow();
 		return now.toMillis(false);
 	}
+
 }
