@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
+
     <RelativeLayout
         android:id="@+id/navbar"
         android:layout_width="fill_parent"
@@ -37,5 +37,68 @@
             android:layout_toRightOf="@+id/imageButton_Map"
             android:src="@drawable/ic_menu_preferences" />
     </RelativeLayout>
-    
-</LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/radioGroup_Settings_Points_to_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView_Settings_points_number_title"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="10dp" >
+
+        <RadioButton
+            android:id="@+id/radio_Settings_50"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="50" />
+
+        <RadioButton
+            android:id="@+id/radio_Settings_250"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="250" />
+
+        <RadioButton
+            android:id="@+id/radio_Settings_500"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="500" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/textView_Settings_points_number_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/activity_settings_map_points"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <View
+        android:id="@+id/View_Line1"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/radioGroup_Settings_Points_to_display"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/darker_gray" />
+
+    <CheckBox
+        android:id="@+id/checkBox_StayAwake"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView_Settings_points_number_title"
+        android:layout_below="@+id/View_Line1"
+        android:layout_marginTop="10dp"
+        android:text="Stay awake" />
+
+    <View
+        android:id="@+id/View_Line2"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/checkBox_StayAwake"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/darker_gray" />
+
+</RelativeLayout>

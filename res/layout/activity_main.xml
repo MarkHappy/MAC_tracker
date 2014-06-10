@@ -104,8 +104,7 @@
         android:layout_alignLeft="@+id/textView_Latitdue_Label"
         android:layout_alignRight="@+id/textView_Latitdue_Label"
         android:layout_below="@+id/textView_Accuracy_Label"
-        android:layout_marginTop="10dp"
-        android:text="" />
+        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/button_Longitude"
@@ -114,8 +113,7 @@
         android:layout_alignLeft="@+id/textView_Longitude_Label"
         android:layout_alignRight="@+id/textView_Longitude_Label"
         android:layout_below="@+id/textView_Accuracy_Label"
-        android:layout_marginTop="10dp"
-        android:text="" />
+        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/button_Accuracy"
@@ -124,8 +122,7 @@
         android:layout_alignLeft="@+id/textView_Accuracy_Label"
         android:layout_alignRight="@+id/textView_Accuracy_Label"
         android:layout_below="@+id/textView_Accuracy_Label"
-        android:layout_marginTop="10dp"
-        android:text="" />
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:id="@+id/textView_Time_Since_Update_Label"

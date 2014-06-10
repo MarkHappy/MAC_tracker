@@ -14,6 +14,7 @@
     <string name="seconds_since_update">Seconds since update:</string>
     <string name="activity_map_title">Map</string>
     <string name="activity_settings_title">Settings</string>
+    <string name="activity_settings_map_points">Map points to display</string>
 
     <string-array name="wifi_states">
         <item>Disabling</item>

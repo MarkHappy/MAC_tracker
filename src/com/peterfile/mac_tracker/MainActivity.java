@@ -8,10 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -20,7 +22,8 @@ public class MainActivity extends Activity {
 
 	static final String TAG = MainActivity.class.getSimpleName();
 	android.os.Handler customHandler;
-	long last_updated_location = 0;
+	private long last_updated_location = 0;
+	public static boolean keepAwake;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +31,18 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+//		Check if to keep awake
+		keepAwake = getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getBoolean("stayAwake", false);
+		if (keepAwake) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		}
+		
+		
 		initMapButton();
 		initSettingsButton();
 		
 		customHandler = new android.os.Handler();
         customHandler.postDelayed(updateTimerThread, 0);
-        
 	}
 	
 	@Override
@@ -43,14 +52,58 @@ public class MainActivity extends Activity {
 		initLocationServiceStateButton();
 		registerReceiver(serverStatusReceiver, new IntentFilter(LocationService.SERVICE_STATUS));
 		registerReceiver(serverLocationReceiver, new IntentFilter(LocationService.SERVICE_LOCATION));
+
+		Bundle b = new Bundle();
+		b.putDouble(LocationService.KEY_LAT, Double.valueOf((String) getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString(LocationService.KEY_LAT, "0")));
+		b.putDouble(LocationService.KEY_LON, Double.valueOf((String) getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString(LocationService.KEY_LON, "0")));
+		b.putFloat(LocationService.KEY_ACC, Float.valueOf((String) getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString(LocationService.KEY_ACC, "0")));
+		b.putLong(LocationService.KEY_SEEN, Long.valueOf(getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString(LocationService.KEY_SEEN, "0")));
+		Log.w(TAG, "Updating: " + b.getDouble(LocationService.KEY_LAT) + " " + b.getDouble(LocationService.KEY_LON) + " " + b.getFloat(LocationService.KEY_ACC) + " ");
+		updateCoordinates(b);
+		
 	}
 	
 	@Override
 	protected void onPause() {
+		Toast.makeText(getBaseContext(), TAG + " onPause",  Toast.LENGTH_SHORT).show();
 		unregisterReceiver(serverLocationReceiver);
 		unregisterReceiver(serverStatusReceiver);
+		
+		Button bLat = (Button) findViewById(R.id.button_Latitude);
+		Button bLon = (Button) findViewById(R.id.button_Longitude);
+		Button bAcc = (Button) findViewById(R.id.button_Accuracy);
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString(LocationService.KEY_LAT, String.valueOf(bLat.getText())).commit();
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString(LocationService.KEY_LON, String.valueOf(bLon.getText())).commit();
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString(LocationService.KEY_ACC, String.valueOf(bAcc.getText())).commit();
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString(LocationService.KEY_SEEN, String.valueOf(last_updated_location)).commit();
+		
+		Log.w(TAG, "Saving: " + String.valueOf(bLat.getText()) + " " + String.valueOf(bLon.getText()) +  " " + String.valueOf(bAcc.getText()));
 		super.onPause();
 	}
+	
+	
+//	@Override
+//	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//		Log.w(TAG, "onRestoreInstanceState");
+//		updateCoordinates(savedInstanceState);
+//		super.onRestoreInstanceState(savedInstanceState);
+//	}
+//
+//	@Override
+//	protected void onSaveInstanceState(Bundle outState) {
+//		Log.w(TAG, "onSaveInstanceState");
+//		Button bLat = (Button) findViewById(R.id.button_Latitude);
+//		Button bLon = (Button) findViewById(R.id.button_Longitude);
+//		Button bAcc = (Button) findViewById(R.id.button_Accuracy);
+//		if (!bLat.getText().equals("")) {
+//			outState.putDouble(LocationService.KEY_LAT, Double.parseDouble((String) bLat.getText()));
+//			outState.putDouble(LocationService.KEY_LON, Double.parseDouble((String) bLon.getText()));
+//			outState.putFloat(LocationService.KEY_ACC, Float.parseFloat((String) bAcc.getText()));
+//			outState.putLong(LocationService.KEY_SEEN, last_updated_location);
+//		}
+//		super.onSaveInstanceState(outState);
+//		Log.w(TAG, "Saved state: " + outState.getDouble(LocationService.KEY_LAT) + " " + outState.getDouble(LocationService.KEY_LON) + " " + outState.getFloat(LocationService.KEY_ACC));
+//	}
 	
 	private void initLocationServiceStateButton() {
 		final Button b = (Button) findViewById(R.id.button_Location_Service_State);
@@ -123,7 +176,7 @@ public class MainActivity extends Activity {
 		bLat.setText(String.valueOf(b.getDouble(LocationService.KEY_LAT)));
 		bLon.setText(String.valueOf(b.getDouble(LocationService.KEY_LON)));
 		bAcc.setText(String.valueOf(b.getFloat(LocationService.KEY_ACC)));
-		if (Float.valueOf((String) bAcc.getText()) < 10) {
+		if ((Float.valueOf((String) bAcc.getText()) < 10) && (Float.valueOf((String) bAcc.getText()) != 0.0)) {
 			bAcc.setBackgroundColor(getResources().getColor(R.color.Green));
 			bLat.setBackgroundColor(getResources().getColor(R.color.Green));
 			bLon.setBackgroundColor(getResources().getColor(R.color.Green));
@@ -140,9 +193,9 @@ public class MainActivity extends Activity {
 		public void run() {
 			if (last_updated_location != 0) {
 				Button bSeen = (Button) findViewById(R.id.button_Time_Since_Update);
-				bSeen.setText(String.valueOf((System.currentTimeMillis() - last_updated_location) / 1000));
+				bSeen.setText(String.valueOf ((System.currentTimeMillis() - last_updated_location) / 1000));
 			}
-			customHandler.postDelayed(this, 5000);
+			customHandler.postDelayed(this, 2000);
 		}
 	};
 

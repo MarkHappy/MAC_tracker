@@ -9,7 +9,9 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
@@ -18,6 +20,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -30,14 +33,29 @@ public class ActivityMap extends FragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Toast.makeText(getBaseContext(), TAG + " onCreate",  Toast.LENGTH_SHORT).show();
+//		Toast.makeText(getBaseContext(), TAG + " onCreate",  Toast.LENGTH_SHORT).show();
 		setContentView(R.layout.activity_map);
+
+//		Check if to keep awake
+		if (MainActivity.keepAwake) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		}
 		
 		initHomeButton();
 		initSettingsButton();
-//		final LatLng ll = new LatLng(32.098001, 34.800092);
-//		final LatLng ll2 = new LatLng(32.098021, 34.800481);
 
+
+	}
+
+	public void onPause() {
+		 super.onPause();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		int mapPointsToDisplay = Integer.parseInt(getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString("points", "50"));
+		
 		googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 		googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		googleMap.setMyLocationEnabled(true);
@@ -46,21 +64,31 @@ public class ActivityMap extends FragmentActivity {
 			LatLng myLocation = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
 			googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
 		}
-
-//		googleMap.addMarker(new MarkerOptions().position(ll).title("Home"));
-//		googleMap.addMarker(new MarkerOptions().position(ll2).title("Near"));
 		
-		//Add all APs in db to the map
+//		Add all APs in db to the map
         DataSource ds = new DataSource(getApplicationContext());
         ds.openDB();
         List<AccessPoint> apList = ds.getAllAccessPoints();
         ds.closeDB();
-        for (AccessPoint ap : apList) {
-        	Log.w(TAG, ap.getApEssid() + " " + ap.getLat() + " " + ap.getLon() + " " + ap.getApPowerLevel() + " " + ap.getAcc());
-        	LatLng ll = new LatLng(ap.getLat(), ap.getLon());
-        	googleMap.addMarker(new MarkerOptions().position(ll).title(ap.getApEssid() + " " + ap.getId()));
+//      Show toast with the number of points
+        Toast.makeText(getBaseContext(), "Drawing " + mapPointsToDisplay + " points",  Toast.LENGTH_SHORT).show();
+        
+        int lowestPoints;
+        if (apList.size() < mapPointsToDisplay) {
+        	lowestPoints = apList.size();
+        } else {
+        	lowestPoints = mapPointsToDisplay;
         }
-		//Add all APs in db to the map
+        if (apList.size() == 0) {
+        	Toast.makeText(getBaseContext(), "No points to display",  Toast.LENGTH_SHORT).show();
+        } else {
+        	for (int i = 0; i < lowestPoints; i++) {
+//   	     	Log.w(TAG, apList.get(i).getApEssid() + " " + apList.get(i).getLat() + " " + apList.get(i).getLon() + " " + apList.get(i).getApPowerLevel() + " " + apList.get(i).getAcc());
+        		LatLng ll = new LatLng(apList.get(i).getLat(), apList.get(i).getLon());
+        		googleMap.addMarker(new MarkerOptions().position(ll).title(apList.get(i).getApEssid() + " " + apList.get(i).getId()));
+        	}
+        }
+//		Add all APs in db to the map
 		
 		googleMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
 					
@@ -75,16 +103,7 @@ public class ActivityMap extends FragmentActivity {
 				
 			}
 		});
-	}
-
-	public void onPause() {
-		 super.onPause();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		Toast.makeText(getBaseContext(), TAG + " onResume",  Toast.LENGTH_SHORT).show();
+//		Toast.makeText(getBaseContext(), TAG + " onResume",  Toast.LENGTH_SHORT).show();
 		
 		
 //		final String TAG_ERROR_DIALOG_FRAGMENT = "errorDialog";

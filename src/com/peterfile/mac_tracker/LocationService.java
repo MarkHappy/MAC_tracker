@@ -51,12 +51,14 @@ public class LocationService extends Service {
 	    
 //	    Get last known location
 	    previousBestLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-	    if (previousBestLocation != null) {
-	    	Log.w(TAG, "Sending location: " + previousBestLocation.getTime());
+	    long timeDiff = (System.currentTimeMillis() - previousBestLocation.getTime()) / 1000;
+	    if ((previousBestLocation != null) && (timeDiff < 120)) {
+	    	Log.w(TAG, "Sending location (GPS): " + previousBestLocation.getLatitude() + " " + previousBestLocation.getLongitude() + " " + previousBestLocation.getAccuracy() + " " + (System.currentTimeMillis() - previousBestLocation.getTime()) / 1000);
 	    	sendLocationIntent(previousBestLocation);
 	    } else {
 	    	previousBestLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 	    	if (previousBestLocation != null) {
+	    		Log.w(TAG, "Sending location (network): " + previousBestLocation.getLatitude() + " " + previousBestLocation.getLongitude() + " " + previousBestLocation.getAccuracy() + " " + (System.currentTimeMillis() - previousBestLocation.getTime()) / 1000);
 	    		sendLocationIntent(previousBestLocation);
 	    	}
 	    }	    
