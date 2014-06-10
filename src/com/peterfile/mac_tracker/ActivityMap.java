@@ -5,8 +5,10 @@ import java.util.List;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -44,7 +46,6 @@ public class ActivityMap extends FragmentActivity {
 		initHomeButton();
 		initSettingsButton();
 
-
 	}
 
 	public void onPause() {
@@ -70,8 +71,9 @@ public class ActivityMap extends FragmentActivity {
         ds.openDB();
         List<AccessPoint> apList = ds.getAllAccessPoints();
         ds.closeDB();
+        
 //      Show toast with the number of points
-        Toast.makeText(getBaseContext(), "Drawing " + mapPointsToDisplay + " points",  Toast.LENGTH_SHORT).show();
+//      Toast.makeText(getBaseContext(), "Drawing " + mapPointsToDisplay + " points",  Toast.LENGTH_SHORT).show();
         
         int lowestPoints;
         if (apList.size() < mapPointsToDisplay) {
@@ -83,12 +85,16 @@ public class ActivityMap extends FragmentActivity {
         	Toast.makeText(getBaseContext(), "No points to display",  Toast.LENGTH_SHORT).show();
         } else {
         	for (int i = 0; i < lowestPoints; i++) {
+        		LatLng oldll = new LatLng(0, 0);
 //   	     	Log.w(TAG, apList.get(i).getApEssid() + " " + apList.get(i).getLat() + " " + apList.get(i).getLon() + " " + apList.get(i).getApPowerLevel() + " " + apList.get(i).getAcc());
         		LatLng ll = new LatLng(apList.get(i).getLat(), apList.get(i).getLon());
-        		googleMap.addMarker(new MarkerOptions().position(ll).title(apList.get(i).getApEssid() + " " + apList.get(i).getId()));
+        		if (ll != oldll) {
+        			googleMap.addMarker(new MarkerOptions().position(ll).title(apList.get(i).getApEssid() + " " + apList.get(i).getId()));
+        			oldll = ll;
+        		}
+        		
         	}
         }
-//		Add all APs in db to the map
 		
 		googleMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
 					
@@ -103,19 +109,24 @@ public class ActivityMap extends FragmentActivity {
 				
 			}
 		});
-//		Toast.makeText(getBaseContext(), TAG + " onResume",  Toast.LENGTH_SHORT).show();
 		
+		if (googleMap.getMyLocation() != null) {
+			Log.w(TAG, "not null");
+			Toast.makeText(getBaseContext(), googleMap.getMyLocation().getLatitude() + " " + googleMap.getMyLocation().getLongitude() + " " + googleMap.getMyLocation().getAccuracy(),  Toast.LENGTH_SHORT).show();
+		}
 		
-//		final String TAG_ERROR_DIALOG_FRAGMENT = "errorDialog";
-//		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-//		if (status == ConnectionResult.SUCCESS) {
-//			// no problems just work
-//		} else if (GooglePlayServicesUtil.isUserRecoverableError(status)) {
-//		     ErrorDialogFragment.newInstance(status).show(getSupportFragmentManager(),TAG_ERROR_DIALOG_FRAGMENT);
-//		} else {
-//			Toast.makeText(this, "Google Maps V2 is not available!",Toast.LENGTH_LONG).show();
-//			finish();
-//		}
+//		Toast zoom level
+		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
+			
+			@Override
+			public void onCameraChange(CameraPosition arg0) {
+				//Toast.makeText(getBaseContext(), "Zoom " + googleMap.getCameraPosition().zoom,  Toast.LENGTH_SHORT).show();
+				if (googleMap.getMyLocation() != null) {
+					Toast.makeText(getBaseContext(), googleMap.getMyLocation().getLatitude() + " " + googleMap.getMyLocation().getLongitude() + " " + googleMap.getMyLocation().getAccuracy(),  Toast.LENGTH_SHORT).show();
+				}	
+			}
+		});
+		
 	}
 
 	public static class ErrorDialogFragment extends DialogFragment {

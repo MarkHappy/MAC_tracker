@@ -30,6 +30,7 @@ public class LocationService extends Service {
 
 	Intent intent;
 	int counter = 0;
+	private static boolean status = false;
 
 	@Override
 	public void onCreate() {
@@ -64,6 +65,7 @@ public class LocationService extends Service {
 	    }	    
 	    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, listener);
 
+	    status = true;
 	    return START_NOT_STICKY;
 //	    return super.onStartCommand(intent, flags, startId);
 	}
@@ -80,6 +82,7 @@ public class LocationService extends Service {
 	    locationManager.removeUpdates(listener);
 		Log.w(TAG, "onDestroy");
 		Toast.makeText(getApplicationContext(), "Location service was stopped", Toast.LENGTH_SHORT).show();
+		status = false;
 	}   
 
     public void sendLocationIntent(Location loc) {
@@ -99,7 +102,7 @@ public class LocationService extends Service {
 	    	List<AccessPoint> apList = new ArrayList<AccessPoint>();
 //	    	loc.getLatitude();
 //	    	loc.getLongitude();
-	    	if (loc.getAccuracy() < 10) {
+	    	if (loc.getAccuracy() < 12) {
 		    	apList = AccessPoint.convertFromListScanResults(WifiHandler.scanNow(getApplicationContext()), loc);
 		    	Log.w(TAG, apList.size() + " access points were found (apList.size)");
 		    	Toast.makeText( getApplicationContext(), apList.size() + " access points were found", Toast.LENGTH_SHORT ).show();
@@ -129,5 +132,9 @@ public class LocationService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 	    return null;
+	}
+
+	public static boolean getServiceStatus () {
+		return status;
 	}
 }

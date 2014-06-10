@@ -26,6 +26,7 @@ public class DataSource {
 			values.put(DBHelper.KEY_ESSID, ap.getApEssid());
 			values.put(DBHelper.KEY_BSSID, ap.getApBssid());
 			values.put(DBHelper.KEY_PWR_LVL, ap.getApPowerLevel());
+			values.put(DBHelper.KEY_FRQ, ap.getApFrequency());
 			values.put(DBHelper.KEY_SEEN, ap.getSeenTime());
 			values.put(DBHelper.KEY_LAT, ap.getLat());
 			values.put(DBHelper.KEY_LON, ap.getLon());
@@ -34,7 +35,6 @@ public class DataSource {
 			Log.w(TAG, "null, creating a new row");
 			// Returns the numbers of rows successfully inserted.
 			didSucceed = database.insert(DBHelper.TABLE_ACCESSPOINTS, null, values) > 0;
-			Log.w(TAG, "didSucceed is: " + String.valueOf(didSucceed));
 		} catch (Exception e) {
 			Log.w(TAG, "catch block for adding AP");
 		}
@@ -47,6 +47,7 @@ public class DataSource {
 			DBHelper.KEY_ESSID, 
 			DBHelper.KEY_BSSID,
 			DBHelper.KEY_PWR_LVL, 
+			DBHelper.KEY_FRQ,
 			DBHelper.KEY_SEEN,
 			DBHelper.KEY_LAT,
 			DBHelper.KEY_LON,
@@ -64,11 +65,12 @@ public class DataSource {
 		AccessPoint ap = new AccessPoint( 
 				cursor.getString(1),
 				cursor.getString(2),
-				Integer.parseInt(cursor.getString(3)), 
-				Long.parseLong(cursor.getString(4)), 
-				Double.parseDouble(cursor.getString(5)), 
+				Integer.parseInt(cursor.getString(3)),
+				Integer.parseInt(cursor.getString(4)),
+				Long.parseLong(cursor.getString(5)), 
 				Double.parseDouble(cursor.getString(6)), 
-				Float.parseFloat(cursor.getString(7))
+				Double.parseDouble(cursor.getString(7)), 
+				Float.parseFloat(cursor.getString(8))
 		);
 		ap.setId(Integer.parseInt(cursor.getString(0)));
 		cursor.close();
@@ -78,7 +80,6 @@ public class DataSource {
 	public List<AccessPoint> getAllAccessPoints	() {
 		List<AccessPoint> apList = new ArrayList<AccessPoint>();
 		String selectQuery = "SELECT * FROM " + DBHelper.TABLE_ACCESSPOINTS;
-		Log.w(TAG, "query is: " + selectQuery);
 		Cursor cursor = database.rawQuery(selectQuery, null);
 		if (cursor.moveToFirst()) {
 			do {
@@ -87,10 +88,11 @@ public class DataSource {
 				ap.setApEssid(cursor.getString(1));
 				ap.setApBssid(cursor.getString(2));
 				ap.setApPowerLevel(cursor.getInt(3));
-				ap.setSeenTime(cursor.getInt(4));
-				ap.setLat(cursor.getFloat(5));
-				ap.setLon(cursor.getFloat(6));
-				ap.setAcc(cursor.getFloat(7));
+				ap.setApFrequency(cursor.getInt(4));
+				ap.setSeenTime(cursor.getInt(5));
+				ap.setLat(cursor.getFloat(6));
+				ap.setLon(cursor.getFloat(7));
+				ap.setAcc(cursor.getFloat(8));
 				apList.add(ap);				
 			} while (cursor.moveToNext());
 		}

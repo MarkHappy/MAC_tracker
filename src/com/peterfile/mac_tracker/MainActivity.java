@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -27,7 +28,7 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Toast.makeText(getBaseContext(), TAG + " onCreate",  Toast.LENGTH_SHORT).show();
+//		Toast.makeText(getBaseContext(), TAG + " onCreate",  Toast.LENGTH_SHORT).show();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
@@ -37,38 +38,47 @@ public class MainActivity extends Activity {
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 		
-		
 		initMapButton();
 		initSettingsButton();
 		
 		customHandler = new android.os.Handler();
         customHandler.postDelayed(updateTimerThread, 0);
+        
+//      DEBUG
+//      Toast.makeText(getBaseContext(), " " + String.valueOf(calculateDistance(-99, 2447)),  Toast.LENGTH_SHORT).show();
+        
+	}
+	
+	public double calculateDistance(double signalLevelInDb, double freqInMHz) {
+	    double exp = (27.55 - (20 * Math.log10(freqInMHz)) - signalLevelInDb) / 20.0;
+//	    double exp = (27.55 - (20 * Math.log10(freqInMHz)) - Math.abs(signalLevelInDb)) / 20.0;
+	    return Math.pow(10.0, exp);
 	}
 	
 	@Override
 	protected void onResume() {
-		Toast.makeText(getBaseContext(), TAG + " onResume",  Toast.LENGTH_SHORT).show();
+//		Toast.makeText(getBaseContext(), TAG + " onResume",  Toast.LENGTH_SHORT).show();
 		super.onResume();
-		initLocationServiceStateButton();
 		registerReceiver(serverStatusReceiver, new IntentFilter(LocationService.SERVICE_STATUS));
 		registerReceiver(serverLocationReceiver, new IntentFilter(LocationService.SERVICE_LOCATION));
+		initLocationServiceStateButton();
 
 		Bundle b = new Bundle();
 		b.putDouble(LocationService.KEY_LAT, Double.valueOf((String) getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString(LocationService.KEY_LAT, "0")));
 		b.putDouble(LocationService.KEY_LON, Double.valueOf((String) getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString(LocationService.KEY_LON, "0")));
 		b.putFloat(LocationService.KEY_ACC, Float.valueOf((String) getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString(LocationService.KEY_ACC, "0")));
 		b.putLong(LocationService.KEY_SEEN, Long.valueOf(getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString(LocationService.KEY_SEEN, "0")));
-		Log.w(TAG, "Updating: " + b.getDouble(LocationService.KEY_LAT) + " " + b.getDouble(LocationService.KEY_LON) + " " + b.getFloat(LocationService.KEY_ACC) + " ");
 		updateCoordinates(b);
 		
 	}
 	
 	@Override
 	protected void onPause() {
-		Toast.makeText(getBaseContext(), TAG + " onPause",  Toast.LENGTH_SHORT).show();
+//		Toast.makeText(getBaseContext(), TAG + " onPause",  Toast.LENGTH_SHORT).show();
+
 		unregisterReceiver(serverLocationReceiver);
 		unregisterReceiver(serverStatusReceiver);
-		
+
 		Button bLat = (Button) findViewById(R.id.button_Latitude);
 		Button bLon = (Button) findViewById(R.id.button_Longitude);
 		Button bAcc = (Button) findViewById(R.id.button_Accuracy);
@@ -76,8 +86,7 @@ public class MainActivity extends Activity {
 		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString(LocationService.KEY_LON, String.valueOf(bLon.getText())).commit();
 		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString(LocationService.KEY_ACC, String.valueOf(bAcc.getText())).commit();
 		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString(LocationService.KEY_SEEN, String.valueOf(last_updated_location)).commit();
-		
-		Log.w(TAG, "Saving: " + String.valueOf(bLat.getText()) + " " + String.valueOf(bLon.getText()) +  " " + String.valueOf(bAcc.getText()));
+
 		super.onPause();
 	}
 	
@@ -203,7 +212,8 @@ public class MainActivity extends Activity {
 		AccessPoint ap = new AccessPoint(
 				"Dummy", 
 				"00:00:00:00:00:00", 
-				0, 
+				0,
+				0,
 				b.getLong(LocationService.KEY_SEEN), 
 				b.getDouble(LocationService.KEY_LAT), 
 				b.getDouble(LocationService.KEY_LON), 
@@ -248,5 +258,5 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
-	
+		
 }

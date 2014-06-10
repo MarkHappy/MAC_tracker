@@ -17,6 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_ESSID 	= "essid";
     public static final String KEY_BSSID 	= "bssid";
     public static final String KEY_PWR_LVL 	= "power_level";
+    public static final String KEY_FRQ 		= "frequency";
     public static final String KEY_SEEN 	= "seen";
     public static final String KEY_LAT 		= "lat";
     public static final String KEY_LON 		= "lon";
@@ -31,7 +32,8 @@ public class DBHelper extends SQLiteOpenHelper {
 			+ KEY_ID 		+ " INTEGER PRIMARY KEY,"
 			+ KEY_ESSID 	+ " TEXT," 
 			+ KEY_BSSID 	+ " TEXT," 
-			+ KEY_PWR_LVL 	+ " INTEGER," 
+			+ KEY_PWR_LVL 	+ " INTEGER,"
+			+ KEY_FRQ		+ " INTEGER,"
 			+ KEY_SEEN 		+ " INTEGER," 
 			+ KEY_LAT 		+ " INTEGER,"
 			+ KEY_LON 		+ " INTEGER,"

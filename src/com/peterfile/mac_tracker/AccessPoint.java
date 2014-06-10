@@ -6,6 +6,7 @@ import java.util.List;
 import android.location.Location;
 import android.net.wifi.ScanResult;
 import android.text.format.Time;
+import android.util.Log;
 
 public class AccessPoint {
 	private int id;
@@ -19,10 +20,11 @@ public class AccessPoint {
 	private double longitude;
 	private float accuracy;
 	
-	public AccessPoint (String essid, String bssid, int pwrlvl, long seen, double lat, double lon, float acc) {
+	public AccessPoint (String essid, String bssid, int pwrlvl, int freq, long seen, double lat, double lon, float acc) {
 		this.essid = essid;
 		this.bssid = bssid;
 		this.powerLevel = pwrlvl;
+		this.frequency = freq;
 		this.seenTime = seen;
 		this.latitude = lat;
 		this.longitude = lon;
@@ -119,7 +121,8 @@ public class AccessPoint {
 		//ap.setApCapabilities(sr.capabilities);
 		ap.setApPowerLevel(sr.level);
 		ap.setSeenTime(getSystemTime());
-		//ap.setApFrequency(sr.frequency);
+		ap.setApFrequency(sr.frequency);
+		Log.w("", sr.frequency + " " + sr.level);
 		ap.setLat(loc.getLatitude());
 		ap.setLon(loc.getLongitude());
 		ap.setAcc(loc.getAccuracy());
