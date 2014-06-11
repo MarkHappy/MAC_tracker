@@ -101,4 +101,37 @@
         android:layout_marginTop="10dp"
         android:background="@android:color/darker_gray" />
 
+    <EditText
+        android:id="@+id/editText_AccuracyThreshold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView_Settings_points_number_title"
+        android:layout_below="@+id/View_Line2"
+        android:layout_marginTop="15dp"
+        android:ems="4"
+        android:hint=""
+        android:imeOptions="actionDone"
+        android:inputType="number" />
+
+    <View
+        android:id="@+id/View_Line3"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/editText_AccuracyThreshold"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/darker_gray" />
+
+    <requestFocus />
+
+    <TextView
+        android:id="@+id/textView_AccuracyThreshold_Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/editText_AccuracyThreshold"
+        android:layout_toRightOf="@+id/editText_AccuracyThreshold"
+        android:text="Accuracy threshold to record (meters)"
+        android:gravity="center_horizontal"
+        android:layout_marginLeft="10dp"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
 </RelativeLayout>

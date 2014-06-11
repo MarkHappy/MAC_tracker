@@ -91,8 +91,9 @@ public class ActivityMap extends FragmentActivity {
         		if (ll != oldll) {
         			googleMap.addMarker(new MarkerOptions().position(ll).title(apList.get(i).getApEssid() + " " + apList.get(i).getId()));
         			oldll = ll;
+        		} else {
+        			i--;
         		}
-        		
         	}
         }
 		
@@ -112,7 +113,7 @@ public class ActivityMap extends FragmentActivity {
 		
 		if (googleMap.getMyLocation() != null) {
 			Log.w(TAG, "not null");
-			Toast.makeText(getBaseContext(), googleMap.getMyLocation().getLatitude() + " " + googleMap.getMyLocation().getLongitude() + " " + googleMap.getMyLocation().getAccuracy(),  Toast.LENGTH_SHORT).show();
+//			Toast.makeText(getBaseContext(), googleMap.getMyLocation().getLatitude() + " " + googleMap.getMyLocation().getLongitude() + " " + googleMap.getMyLocation().getAccuracy(),  Toast.LENGTH_SHORT).show();
 		}
 		
 //		Toast zoom level
@@ -122,7 +123,7 @@ public class ActivityMap extends FragmentActivity {
 			public void onCameraChange(CameraPosition arg0) {
 				//Toast.makeText(getBaseContext(), "Zoom " + googleMap.getCameraPosition().zoom,  Toast.LENGTH_SHORT).show();
 				if (googleMap.getMyLocation() != null) {
-					Toast.makeText(getBaseContext(), googleMap.getMyLocation().getLatitude() + " " + googleMap.getMyLocation().getLongitude() + " " + googleMap.getMyLocation().getAccuracy(),  Toast.LENGTH_SHORT).show();
+//					Toast.makeText(getBaseContext(), googleMap.getMyLocation().getLatitude() + " " + googleMap.getMyLocation().getLongitude() + " " + googleMap.getMyLocation().getAccuracy(),  Toast.LENGTH_SHORT).show();
 				}	
 			}
 		});

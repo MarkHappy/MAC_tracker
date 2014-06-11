@@ -27,6 +27,7 @@ public class LocationService extends Service {
 	public final static String KEY_PRO = "Provider";
 	public final static String KEY_ACC = "Accuracy";
 	public final static String KEY_SEEN = "TimeSeen";
+	public static int accuracyThreshold;
 
 	Intent intent;
 	int counter = 0;
@@ -35,7 +36,9 @@ public class LocationService extends Service {
 	@Override
 	public void onCreate() {
 	    super.onCreate();
-	    intent = new Intent(BROADCAST_ACTION);      
+	    intent = new Intent(BROADCAST_ACTION);
+	    
+	    accuracyThreshold = getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getInt("accuracyThreshold", 12);
 	}
 
 	@Override
@@ -102,7 +105,7 @@ public class LocationService extends Service {
 	    	List<AccessPoint> apList = new ArrayList<AccessPoint>();
 //	    	loc.getLatitude();
 //	    	loc.getLongitude();
-	    	if (loc.getAccuracy() < 12) {
+	    	if (loc.getAccuracy() < accuracyThreshold) {
 		    	apList = AccessPoint.convertFromListScanResults(WifiHandler.scanNow(getApplicationContext()), loc);
 		    	Log.w(TAG, apList.size() + " access points were found (apList.size)");
 		    	Toast.makeText( getApplicationContext(), apList.size() + " access points were found", Toast.LENGTH_SHORT ).show();

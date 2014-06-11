@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
 		
 		customHandler = new android.os.Handler();
         customHandler.postDelayed(updateTimerThread, 0);
-        
+                
 //      DEBUG
 //      Toast.makeText(getBaseContext(), " " + String.valueOf(calculateDistance(-99, 2447)),  Toast.LENGTH_SHORT).show();
         
@@ -59,6 +59,9 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 //		Toast.makeText(getBaseContext(), TAG + " onResume",  Toast.LENGTH_SHORT).show();
 		super.onResume();
+		
+		LocationService.accuracyThreshold = getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getInt("accuracyThreshold", 12);
+		
 		registerReceiver(serverStatusReceiver, new IntentFilter(LocationService.SERVICE_STATUS));
 		registerReceiver(serverLocationReceiver, new IntentFilter(LocationService.SERVICE_LOCATION));
 		initLocationServiceStateButton();
@@ -89,31 +92,7 @@ public class MainActivity extends Activity {
 
 		super.onPause();
 	}
-	
-	
-//	@Override
-//	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-//		Log.w(TAG, "onRestoreInstanceState");
-//		updateCoordinates(savedInstanceState);
-//		super.onRestoreInstanceState(savedInstanceState);
-//	}
-//
-//	@Override
-//	protected void onSaveInstanceState(Bundle outState) {
-//		Log.w(TAG, "onSaveInstanceState");
-//		Button bLat = (Button) findViewById(R.id.button_Latitude);
-//		Button bLon = (Button) findViewById(R.id.button_Longitude);
-//		Button bAcc = (Button) findViewById(R.id.button_Accuracy);
-//		if (!bLat.getText().equals("")) {
-//			outState.putDouble(LocationService.KEY_LAT, Double.parseDouble((String) bLat.getText()));
-//			outState.putDouble(LocationService.KEY_LON, Double.parseDouble((String) bLon.getText()));
-//			outState.putFloat(LocationService.KEY_ACC, Float.parseFloat((String) bAcc.getText()));
-//			outState.putLong(LocationService.KEY_SEEN, last_updated_location);
-//		}
-//		super.onSaveInstanceState(outState);
-//		Log.w(TAG, "Saved state: " + outState.getDouble(LocationService.KEY_LAT) + " " + outState.getDouble(LocationService.KEY_LON) + " " + outState.getFloat(LocationService.KEY_ACC));
-//	}
-	
+
 	private void initLocationServiceStateButton() {
 		final Button b = (Button) findViewById(R.id.button_Location_Service_State);
 		final Intent serviceIntent = new Intent(this, LocationService.class);
@@ -168,6 +147,7 @@ public class MainActivity extends Activity {
 		}
 	};
 	
+	
 	private BroadcastReceiver serverLocationReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -178,6 +158,7 @@ public class MainActivity extends Activity {
 		}
 	};
 	
+	
 	private void updateCoordinates (Bundle b) {
 		Button bLat = (Button) findViewById(R.id.button_Latitude);
 		Button bLon = (Button) findViewById(R.id.button_Longitude);
@@ -185,7 +166,7 @@ public class MainActivity extends Activity {
 		bLat.setText(String.valueOf(b.getDouble(LocationService.KEY_LAT)));
 		bLon.setText(String.valueOf(b.getDouble(LocationService.KEY_LON)));
 		bAcc.setText(String.valueOf(b.getFloat(LocationService.KEY_ACC)));
-		if ((Float.valueOf((String) bAcc.getText()) < 10) && (Float.valueOf((String) bAcc.getText()) != 0.0)) {
+		if ((Float.valueOf((String) bAcc.getText()) < LocationService.accuracyThreshold) && (Float.valueOf((String) bAcc.getText()) != 0.0)) {
 			bAcc.setBackgroundColor(getResources().getColor(R.color.Green));
 			bLat.setBackgroundColor(getResources().getColor(R.color.Green));
 			bLon.setBackgroundColor(getResources().getColor(R.color.Green));
@@ -194,7 +175,6 @@ public class MainActivity extends Activity {
 			bLat.setBackgroundColor(getResources().getColor(R.color.Red));
 			bLon.setBackgroundColor(getResources().getColor(R.color.Red));
 		}
-		
 		last_updated_location = b.getLong(LocationService.KEY_SEEN);
 	}
 	
@@ -207,6 +187,7 @@ public class MainActivity extends Activity {
 			customHandler.postDelayed(this, 2000);
 		}
 	};
+	
 
 	private void saveDummyAp (Bundle b) {
 		AccessPoint ap = new AccessPoint(

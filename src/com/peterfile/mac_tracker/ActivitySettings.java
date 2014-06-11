@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -30,6 +31,7 @@ public class ActivitySettings extends Activity{
 		initSettings();
 		initPointsToDisplay();
 		initStayAwake();
+		initAccuracyThreshold();
 	
 		super.onCreate(savedInstanceState);
 	}
@@ -79,6 +81,10 @@ public class ActivitySettings extends Activity{
 		} else {
 			cbAwake.setChecked(false);
 		}
+		
+		EditText etAccuracyThreshold = (EditText) findViewById(R.id.editText_AccuracyThreshold);
+		int i = getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getInt("accuracyThreshold", 12);
+		etAccuracyThreshold.setText(String.valueOf(i));
 	}
 	
 	private void initStayAwake() {
@@ -114,4 +120,16 @@ public class ActivitySettings extends Activity{
 			}
 		});
 	}
+
+	private void initAccuracyThreshold() {
+		final EditText etAccuracyThreshold = (EditText) findViewById(R.id.editText_AccuracyThreshold);
+		etAccuracyThreshold.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putInt("accuracyThreshold", Integer.valueOf(etAccuracyThreshold.getText().toString())).commit();
+			}
+		});
+	}
+
 }
