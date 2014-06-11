@@ -1,5 +1,6 @@
 package com.peterfile.mac_tracker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -48,68 +49,73 @@ public class ActivityMap extends FragmentActivity {
 
 	}
 
-	public void onPause() {
-		 super.onPause();
-	}
-
 	@Override
 	public void onResume() {
 		super.onResume();
+		
 		int mapPointsToDisplay = Integer.parseInt(getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString("points", "50"));
 		
 		googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 		googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		googleMap.setMyLocationEnabled(true);
 		
-		if (googleMap.getMyLocation() != null) {
-			LatLng myLocation = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
-			googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
-		}
+		initCameraPosition();
 		
-//		Add all APs in db to the map
+//		if (googleMap.getMyLocation() != null) {
+//			LatLng myLocation = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
+//			googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+//		}
+		
+//		Read all APs from the db
         DataSource ds = new DataSource(getApplicationContext());
         ds.openDB();
         List<AccessPoint> apList = ds.getAllAccessPoints();
         ds.closeDB();
         
-//      Show toast with the number of points
-//      Toast.makeText(getBaseContext(), "Drawing " + mapPointsToDisplay + " points",  Toast.LENGTH_SHORT).show();
+//      Clean up duplicate coordinates
+        List<AccessPoint> apListToDisplay = new ArrayList<AccessPoint>();
+        LatLng previousll = new LatLng(0, 0);
+        for (AccessPoint ap: apList) {
+        	LatLng currentll = new LatLng(ap.getLat(), ap.getLon());
+        	if (!currentll.equals(previousll)) {
+        		apListToDisplay.add(ap);
+        		previousll = currentll;
+        	}
+        }
         
+//      Calculate the number of points to display
         int lowestPoints;
-        if (apList.size() < mapPointsToDisplay) {
-        	lowestPoints = apList.size();
+        if (apListToDisplay.size() < mapPointsToDisplay) {
+        	lowestPoints = apListToDisplay.size();
         } else {
         	lowestPoints = mapPointsToDisplay;
         }
+        
+//      Add points to the map
         if (apList.size() == 0) {
         	Toast.makeText(getBaseContext(), "No points to display",  Toast.LENGTH_SHORT).show();
         } else {
+        	LatLng oldll = new LatLng(0, 0);
         	for (int i = 0; i < lowestPoints; i++) {
-        		LatLng oldll = new LatLng(0, 0);
-//   	     	Log.w(TAG, apList.get(i).getApEssid() + " " + apList.get(i).getLat() + " " + apList.get(i).getLon() + " " + apList.get(i).getApPowerLevel() + " " + apList.get(i).getAcc());
-        		LatLng ll = new LatLng(apList.get(i).getLat(), apList.get(i).getLon());
-        		if (ll != oldll) {
-        			googleMap.addMarker(new MarkerOptions().position(ll).title(apList.get(i).getApEssid() + " " + apList.get(i).getId()));
+        		LatLng ll = new LatLng(apListToDisplay.get(i).getLat(), apListToDisplay.get(i).getLon());
+        		if (!ll.equals(oldll)) {
+        			googleMap.addMarker(new MarkerOptions().position(ll).title(apListToDisplay.get(i).getApEssid() + " " + apListToDisplay.get(i).getId()));
         			oldll = ll;
-        		} else {
-        			i--;
         		}
         	}
         }
 		
-		googleMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
-					
-			@Override
-			public void onMyLocationChange(Location location) {
-				if (firstZoom) {
-					LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
-					googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
-					firstZoom = false;
-				}
-
-				
-			}
-		});
+//		googleMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
+//					
+//			@Override
+//			public void onMyLocationChange(Location location) {
+//				if (firstZoom) {
+//					LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
+//					googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
+//					firstZoom = false;
+//				}
+//			}
+//		});
 		
 		if (googleMap.getMyLocation() != null) {
 			Log.w(TAG, "not null");
@@ -117,17 +123,29 @@ public class ActivityMap extends FragmentActivity {
 		}
 		
 //		Toast zoom level
-		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
-			
-			@Override
-			public void onCameraChange(CameraPosition arg0) {
-				//Toast.makeText(getBaseContext(), "Zoom " + googleMap.getCameraPosition().zoom,  Toast.LENGTH_SHORT).show();
-				if (googleMap.getMyLocation() != null) {
-//					Toast.makeText(getBaseContext(), googleMap.getMyLocation().getLatitude() + " " + googleMap.getMyLocation().getLongitude() + " " + googleMap.getMyLocation().getAccuracy(),  Toast.LENGTH_SHORT).show();
-				}	
-			}
-		});
+//		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
+//			
+//			@Override
+//			public void onCameraChange(CameraPosition arg0) {
+//				//Toast.makeText(getBaseContext(), "Zoom " + googleMap.getCameraPosition().zoom,  Toast.LENGTH_SHORT).show();
+//				if (googleMap.getMyLocation() != null) {
+////					Toast.makeText(getBaseContext(), googleMap.getMyLocation().getLatitude() + " " + googleMap.getMyLocation().getLongitude() + " " + googleMap.getMyLocation().getAccuracy(),  Toast.LENGTH_SHORT).show();
+//				}	
+//			}
+//		});
 		
+	}
+
+	@Override
+	protected void onPause() {
+		CameraPosition cp = googleMap.getCameraPosition();
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString("cameraPosition_Lat", String.valueOf(cp.target.latitude)).commit();
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putString("cameraPosition_Lon", String.valueOf(cp.target.longitude)).commit();
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putFloat("cameraPosition_Zoom", cp.zoom).commit();
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putFloat("cameraPosition_Tilt", cp.tilt).commit();
+		getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).edit().putFloat("cameraPosition_Bearing", cp.bearing).commit();
+		
+		super.onPause();
 	}
 
 	public static class ErrorDialogFragment extends DialogFragment {
@@ -179,4 +197,14 @@ public class ActivityMap extends FragmentActivity {
 		});
 	}
 	
+	private void initCameraPosition() {
+		googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition (
+				new LatLng (Double.valueOf(getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString("cameraPosition_Lat", "0.0")), 
+						Double.valueOf(getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getString("cameraPosition_Lon", "0.0"))), 
+					getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getFloat("cameraPosition_Zoom", googleMap.getMaxZoomLevel()),
+					getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getFloat("cameraPosition_Tilt", 0),
+					getSharedPreferences("MAC_tracker", Context.MODE_PRIVATE).getFloat("cameraPosition_Bearing", 0)
+				)), 100, null);
+		
+	}
 }

@@ -9,7 +9,7 @@ import android.text.format.Time;
 import android.util.Log;
 
 public class AccessPoint {
-	private int id;
+	private static int id;
 	private long seenTime;
 	private String essid;
 	private String bssid;
